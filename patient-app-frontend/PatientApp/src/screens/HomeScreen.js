@@ -71,7 +71,8 @@ export default function HomeScreen({ navigation, user }) {  // ← Change route 
             <Text style={styles.cardSubtitle}>View history</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.card}>
+          <TouchableOpacity style={styles.card}
+          onPress={() => navigation.navigate('Profile')} >
             <Text style={styles.cardIcon}>👤</Text>
             <Text style={styles.cardTitle}>My Profile</Text>
             <Text style={styles.cardSubtitle}>Edit details</Text>

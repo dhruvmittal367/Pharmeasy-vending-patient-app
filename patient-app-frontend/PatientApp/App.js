@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import LoginScreen from './src/screens/LoginScreen';
 import SignupScreen from './src/screens/SignupScreen';
 import HomeScreen from './src/screens/HomeScreen';
+import ProfileScreen from './src/screens/ProfileScreen'; 
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState('Login');
@@ -26,6 +27,8 @@ export default function App() {
         return <SignupScreen navigation={navigation} />;
       case 'Home':
         return <HomeScreen navigation={navigation} user={user} />;
+      case 'Profile': 
+        return <ProfileScreen navigation={navigation} user={user} />;
       default:
         return <LoginScreen navigation={navigation} />;
     }
