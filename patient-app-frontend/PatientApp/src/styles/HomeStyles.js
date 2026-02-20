@@ -1,0 +1,135 @@
+import { StyleSheet } from 'react-native';
+
+export default StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#f5f5f5',
+  },
+  header: {
+    backgroundColor: '#007AFF',
+    padding: 20,
+    paddingTop: 50,
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
+  },
+  profileSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  avatar: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#fff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 15,
+  },
+  avatarText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#007AFF',
+  },
+  userInfo: {
+    flex: 1,
+  },
+  welcomeText: {
+    fontSize: 14,
+    color: '#fff',
+    opacity: 0.9,
+  },
+  userName: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginTop: 2,
+  },
+  userEmail: {
+    fontSize: 14,
+    color: '#fff',
+    opacity: 0.8,
+    marginTop: 2,
+  },
+  logoutButton: {
+    position: 'absolute',
+    top: 50,
+    right: 20,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    borderRadius: 20,
+  },
+  logoutText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  dashboardSection: {
+    padding: 20,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 15,
+  },
+  cardsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 15,
+  },
+  card: {
+    flex: 1,
+    backgroundColor: '#fff',
+    borderRadius: 15,
+    padding: 20,
+    marginHorizontal: 5,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  cardIcon: {
+    fontSize: 40,
+    marginBottom: 10,
+  },
+  cardTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+    textAlign: 'center',
+    marginBottom: 5,
+  },
+  cardSubtitle: {
+    fontSize: 12,
+    color: '#666',
+    textAlign: 'center',
+  },
+  activitySection: {
+    padding: 20,
+  },
+  emptyState: {
+    backgroundColor: '#fff',
+    borderRadius: 15,
+    padding: 40,
+    alignItems: 'center',
+  },
+  emptyStateIcon: {
+    fontSize: 50,
+    marginBottom: 15,
+  },
+  emptyStateText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 5,
+  },
+  emptyStateSubtext: {
+    fontSize: 14,
+    color: '#666',
+    textAlign: 'center',
+  },
+});
