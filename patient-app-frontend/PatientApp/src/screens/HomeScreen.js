@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import styles from '../styles/HomeStyles';
 
-export default function HomeScreen({ navigation, user }) {  // ← Change route to user
+export default function HomeScreen({ navigation, user }) {
 
   const handleLogout = () => {
     Alert.alert(
@@ -46,7 +46,7 @@ export default function HomeScreen({ navigation, user }) {  // ← Change route 
         </TouchableOpacity>
       </View>
 
-      {/* Dashboard Cards */}
+      {/* Dashboard Cards - Only 3 cards now */}
       <View style={styles.dashboardSection}>
         <Text style={styles.sectionTitle}>Quick Access</Text>
         
@@ -71,11 +71,10 @@ export default function HomeScreen({ navigation, user }) {  // ← Change route 
             <Text style={styles.cardSubtitle}>View history</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.card}
-          onPress={() => navigation.navigate('Profile')} >
-            <Text style={styles.cardIcon}>👤</Text>
-            <Text style={styles.cardTitle}>My Profile</Text>
-            <Text style={styles.cardSubtitle}>Edit details</Text>
+          <TouchableOpacity style={styles.card}>
+            <Text style={styles.cardIcon}>💊</Text>
+            <Text style={styles.cardTitle}>Prescriptions</Text>
+            <Text style={styles.cardSubtitle}>View & Download</Text>
           </TouchableOpacity>
         </View>
       </View>
