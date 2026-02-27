@@ -5,6 +5,7 @@ require('dotenv').config();
 const authRoutes = require('./src/routes/authRoutes');
 const userRoutes = require('./src/routes/userRoutes');
 const doctorRoutes = require('./src/routes/doctors');
+const appointmentRoutes = require('./src/routes/appointments'); 
 
 const app = express();
 
@@ -17,6 +18,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/doctors', doctorRoutes); 
+app.use('/api/appointments', appointmentRoutes);
+
 
 // Test route
 app.get('/', (req, res) => {
