@@ -102,6 +102,46 @@ export default StyleSheet.create({
     fontWeight: '600',
     color: '#007AFF',
   },
+
+  // ── Consultation Mode ──────────────────────────────────────
+  consultationModeContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+  },
+   modeButton: {
+    flex: 1,
+    backgroundColor: '#fff',
+    borderWidth: 2,
+    borderColor: '#ddd',
+    borderRadius: 12,
+    padding: 15,
+    marginHorizontal: 5,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  modeButtonActive: {
+    backgroundColor: '#007AFF',
+    borderColor: '#007AFF',
+  },
+  modeIcon: {
+    fontSize: 32,
+    marginBottom: 8,
+  },
+  modeText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#666',
+    textAlign: 'center',
+  },
+  modeTextActive: {
+    color: '#fff',
+  },
+
   slotGroupTitle: {
     fontSize: 14,
     fontWeight: '600',

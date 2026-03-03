@@ -5,10 +5,12 @@ import {
   FlatList,
   TouchableOpacity,
   ActivityIndicator,
+  Alert,
   RefreshControl
 } from 'react-native';
 import { showSuccess, showError } from '../utils/toast';
 import axios from 'axios';
+
 import styles from '../styles/AppointmentsStyles';
 
 const API_URL = 'http://10.0.2.2:8080/api';

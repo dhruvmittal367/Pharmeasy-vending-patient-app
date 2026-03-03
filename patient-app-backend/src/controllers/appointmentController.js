@@ -4,7 +4,14 @@ const adminDb = require('../config/adminDb');
 // Create new appointment
 exports.createAppointment = async (req, res) => {
   try {
-    const { patient_id, doctor_id, appointment_date, appointment_time, reason } = req.body;
+    const { 
+      patient_id, 
+      doctor_id, 
+      appointment_date, 
+      appointment_time, 
+      appointment_type,
+      reason 
+    } = req.body;
 
     // Validation
     if (!patient_id || !doctor_id || !appointment_date || !appointment_time || !reason) {
@@ -14,12 +21,12 @@ exports.createAppointment = async (req, res) => {
       });
     }
 
-    // Insert appointment
+    // Insert appointment with appointment_type
     const [result] = await db.query(
       `INSERT INTO appointments 
-       (patient_id, doctor_id, appointment_date, appointment_time, reason, status) 
-       VALUES (?, ?, ?, ?, ?, 'pending')`,
-      [patient_id, doctor_id, appointment_date, appointment_time, reason]
+       (patient_id, doctor_id, appointment_date, appointment_time, appointment_type, reason, status) 
+       VALUES (?, ?, ?, ?, ?, ?, 'pending')`,
+      [patient_id, doctor_id, appointment_date, appointment_time, appointment_type || 'video', reason]
     );
 
     res.status(201).json({
@@ -96,8 +103,8 @@ exports.cancelAppointment = async (req, res) => {
     const { id } = req.params;
 
     await db.query(
-      'UPDATE appointments SET status = ? WHERE id = ?',
-      ['cancelled', id]
+      'UPDATE appointments SET status = ?, cancelled_at = NOW(), cancelled_by = ? WHERE id = ?',
+      ['cancelled', 'patient', id]
     );
 
     res.status(200).json({
