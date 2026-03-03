@@ -1,4 +1,5 @@
 const db = require('../config/db');
+const adminDb = require('../config/adminDb');
 
 // Create new appointment
 exports.createAppointment = async (req, res) => {
@@ -41,17 +42,38 @@ exports.getPatientAppointments = async (req, res) => {
   try {
     const { patientId } = req.params;
 
+    // Get appointments from patient_app database
     const [appointments] = await db.query(
-      `SELECT 
-        a.*,
-        u.email as doctor_email,
-        u.full_name as doctor_name
-       FROM appointments a
-       LEFT JOIN users u ON a.doctor_id = u.id
-       WHERE a.patient_id = ?
-       ORDER BY a.appointment_date DESC, a.appointment_time DESC`,
+      `SELECT * FROM appointments 
+       WHERE patient_id = ?
+       ORDER BY appointment_date DESC, appointment_time DESC`,
       [patientId]
     );
+
+    // Get doctor details from admin_db for each appointment
+    for (let appointment of appointments) {
+      try {
+        const [doctors] = await adminDb.query(
+          `SELECT id, email, first_name, last_name, 
+           CONCAT(first_name, ' ', last_name) as full_name
+           FROM users 
+           WHERE id = ? AND role = 'DOCTOR'`,
+          [appointment.doctor_id]
+        );
+        
+        if (doctors.length > 0) {
+          appointment.doctor_name = doctors[0].full_name;
+          appointment.doctor_email = doctors[0].email;
+        } else {
+          appointment.doctor_name = 'Unknown Doctor';
+          appointment.doctor_email = '';
+        }
+      } catch (err) {
+        console.error('Error fetching doctor details:', err);
+        appointment.doctor_name = 'Unknown Doctor';
+        appointment.doctor_email = '';
+      }
+    }
 
     res.status(200).json({
       success: true,

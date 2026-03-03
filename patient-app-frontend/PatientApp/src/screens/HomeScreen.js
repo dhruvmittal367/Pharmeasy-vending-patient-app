@@ -1,14 +1,46 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   View, 
   Text, 
   TouchableOpacity, 
   ScrollView,
-  Alert 
+  Alert,
+  RefreshControl,
+  ActivityIndicator
 } from 'react-native';
+import axios from 'axios';
 import styles from '../styles/HomeStyles';
 
+const API_URL = 'http://10.0.2.2:8080/api';
+
 export default function HomeScreen({ navigation, user }) {
+  const [appointments, setAppointments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  useEffect(() => {
+    if (user?.id) {
+      fetchAppointments();
+    }
+  }, [user]);
+
+  const fetchAppointments = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/appointments/patient/${user.id}`);
+      setAppointments(response.data.appointments);
+      setLoading(false);
+      setRefreshing(false);
+    } catch (error) {
+      console.error('Fetch appointments error:', error);
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    fetchAppointments();
+  };
 
   const handleLogout = () => {
     Alert.alert(
@@ -25,8 +57,34 @@ export default function HomeScreen({ navigation, user }) {
     );
   };
 
+  // Calculate stats
+  const upcomingAppointments = appointments.filter(
+    apt => apt.status !== 'cancelled' && apt.status !== 'completed'
+  );
+  const todayAppointments = appointments.filter(apt => {
+    const today = new Date().toISOString().split('T')[0];
+    return apt.appointment_date.split('T')[0] === today;
+  });
+
+  // Get next appointment
+  const nextAppointment = upcomingAppointments
+    .sort((a, b) => new Date(a.appointment_date) - new Date(b.appointment_date))[0];
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#007AFF" />
+      </View>
+    );
+  }
+
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView 
+      style={styles.container}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
+    >
       {/* Header with user info */}
       <View style={styles.header}>
         <View style={styles.profileSection}>
@@ -46,18 +104,74 @@ export default function HomeScreen({ navigation, user }) {
         </TouchableOpacity>
       </View>
 
-      {/* Dashboard Cards - Only 3 cards now */}
+      {/* Stats Cards */}
+      <View style={styles.statsSection}>
+        <View style={styles.statCard}>
+          <Text style={styles.statNumber}>{appointments.length}</Text>
+          <Text style={styles.statLabel}>Total</Text>
+        </View>
+        <View style={styles.statCard}>
+          <Text style={styles.statNumber}>{upcomingAppointments.length}</Text>
+          <Text style={styles.statLabel}>Upcoming</Text>
+        </View>
+        <View style={styles.statCard}>
+          <Text style={styles.statNumber}>{todayAppointments.length}</Text>
+          <Text style={styles.statLabel}>Today</Text>
+        </View>
+      </View>
+
+      {/* Next Appointment Widget */}
+      {nextAppointment && (
+        <View style={styles.nextAppointmentSection}>
+          <Text style={styles.sectionTitle}>Next Appointment</Text>
+          <View style={styles.nextAppointmentCard}>
+            <View style={styles.appointmentDateBadge}>
+              <Text style={styles.appointmentDay}>
+                {new Date(nextAppointment.appointment_date).getDate()}
+              </Text>
+              <Text style={styles.appointmentMonth}>
+                {new Date(nextAppointment.appointment_date).toLocaleString('default', { month: 'short' })}
+              </Text>
+            </View>
+            <View style={styles.appointmentDetails}>
+              <Text style={styles.appointmentDoctor}>
+                Dr. {nextAppointment.doctor_name}
+              </Text>
+              <Text style={styles.appointmentTime}>
+                🕐 {nextAppointment.appointment_time}
+              </Text>
+              <Text style={styles.appointmentReason} numberOfLines={1}>
+                {nextAppointment.reason}
+              </Text>
+            </View>
+            <TouchableOpacity 
+              style={styles.viewButton}
+              onPress={() => navigation.navigate('Appointments')}
+            >
+              <Text style={styles.viewButtonText}>View</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
+
+      {/* Quick Actions */}
       <View style={styles.dashboardSection}>
         <Text style={styles.sectionTitle}>Quick Access</Text>
         
         <View style={styles.cardsRow}>
-          <TouchableOpacity style={styles.card}>
+          <TouchableOpacity 
+            style={styles.card}
+            onPress={() => navigation.navigate('Appointments')}
+          >
             <Text style={styles.cardIcon}>📅</Text>
             <Text style={styles.cardTitle}>Appointments</Text>
             <Text style={styles.cardSubtitle}>Book & View</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.card}>
+          <TouchableOpacity 
+            style={styles.card}
+            onPress={() => navigation.navigate('Doctors')}
+          >
             <Text style={styles.cardIcon}>👨‍⚕️</Text>
             <Text style={styles.cardTitle}>Find Doctors</Text>
             <Text style={styles.cardSubtitle}>Search specialists</Text>
@@ -79,15 +193,26 @@ export default function HomeScreen({ navigation, user }) {
         </View>
       </View>
 
-      {/* Recent Activity Section */}
-      <View style={styles.activitySection}>
-        <Text style={styles.sectionTitle}>Recent Activity</Text>
-        <View style={styles.emptyState}>
-          <Text style={styles.emptyStateIcon}>📭</Text>
-          <Text style={styles.emptyStateText}>No recent activity</Text>
-          <Text style={styles.emptyStateSubtext}>
-            Book your first appointment to get started
-          </Text>
+      {/* Health Tips */}
+      <View style={styles.tipsSection}>
+        <Text style={styles.sectionTitle}>Health Tips</Text>
+        <View style={styles.tipCard}>
+          <Text style={styles.tipIcon}>💡</Text>
+          <View style={styles.tipContent}>
+            <Text style={styles.tipTitle}>Stay Hydrated</Text>
+            <Text style={styles.tipText}>
+              Drink at least 8 glasses of water daily for better health
+            </Text>
+          </View>
+        </View>
+        <View style={styles.tipCard}>
+          <Text style={styles.tipIcon}>🏃</Text>
+          <View style={styles.tipContent}>
+            <Text style={styles.tipTitle}>Regular Exercise</Text>
+            <Text style={styles.tipText}>
+              30 minutes of exercise daily keeps you fit and healthy
+            </Text>
+          </View>
         </View>
       </View>
 

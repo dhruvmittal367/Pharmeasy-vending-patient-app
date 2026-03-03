@@ -1,10 +1,11 @@
 const express = require('express');
 const { verifyToken } = require('../middlewares/authMiddleware');
+const { getProfile, updateProfile } = require('../controllers/userController');
 const pool = require('../config/db');
 
 const router = express.Router();
 
-// Get user profile
+// Get user profile (with token - original route)
 router.get('/profile', verifyToken, async (req, res) => {
   try {
     const [users] = await pool.query(
@@ -27,5 +28,11 @@ router.get('/profile', verifyToken, async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch profile' });
   }
 });
+
+// GET /api/users/:userId - Get user profile by ID
+router.get('/:userId', getProfile);
+
+// PUT /api/users/:userId - Update user profile
+router.put('/:userId', updateProfile);
 
 module.exports = router;

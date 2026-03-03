@@ -4,9 +4,9 @@ import {
   Text, 
   TextInput, 
   TouchableOpacity, 
-  ScrollView,
-  Alert 
+  ScrollView
 } from 'react-native';
+import { showSuccess, showError } from '../utils/toast';
 import { userAPI } from '../services/api';
 import styles from '../styles/ProfileStyles';
 
@@ -37,39 +37,39 @@ export default function ProfileScreen({ navigation, user }) {
   const [loading, setLoading] = useState(false);
 
   const handleSave = async () => {
-    setLoading(true);
-    try {
-      const updateData = {
-        fullName,
-        phone,
-        dateOfBirth: dateOfBirth || null,
-        gender: gender || null,
-        bloodGroup: bloodGroup || null,
-        height: height || null,
-        weight: weight || null,
-        address: address || null,
-        city: city || null,
-        state: state || null,
-        pincode: pincode || null,
-        emergencyContactName: emergencyContactName || null,
-        emergencyContactPhone: emergencyContactPhone || null,
-        allergies: allergies || null,
-        chronicDiseases: chronicDiseases || null,
-        currentMedications: currentMedications || null,
-      };
+  setLoading(true);
+  try {
+    const updateData = {
+      fullName,
+      phone,
+      dateOfBirth: dateOfBirth || null,
+      gender: gender || null,
+      bloodGroup: bloodGroup || null,
+      height: height || null,
+      weight: weight || null,
+      address: address || null,
+      city: city || null,
+      state: state || null,
+      pincode: pincode || null,
+      emergencyContactName: emergencyContactName || null,
+      emergencyContactPhone: emergencyContactPhone || null,
+      allergies: allergies || null,
+      chronicDiseases: chronicDiseases || null,
+      currentMedications: currentMedications || null,
+    };
 
-      await userAPI.updateProfile(updateData);
-      
-      Alert.alert('Success', 'Profile updated successfully');
-      setEditing(false);
-      
-    } catch (error) {
-      console.error('Update error:', error);
-      Alert.alert('Error', error.response?.data?.error || 'Failed to update profile');
-    } finally {
-      setLoading(false);
-    }
-  };
+    await userAPI.updateProfile(user.id, updateData);
+    
+    showSuccess('Profile updated successfully');
+    setEditing(false);
+    
+  } catch (error) {
+    console.error('Update error:', error);
+    showError(error.response?.data?.error || 'Failed to update profile');
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <ScrollView style={styles.container}>

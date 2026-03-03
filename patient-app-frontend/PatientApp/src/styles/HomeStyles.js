@@ -5,6 +5,12 @@ export default StyleSheet.create({
     flex: 1,
     backgroundColor: '#f5f5f5',
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f5f5f5',
+  },
   header: {
     backgroundColor: '#007AFF',
     padding: 20,
@@ -65,6 +71,99 @@ export default StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
   },
+  statsSection: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    padding: 20,
+    marginTop: -30,
+  },
+  statCard: {
+    backgroundColor: '#fff',
+    borderRadius: 15,
+    padding: 20,
+    alignItems: 'center',
+    flex: 1,
+    marginHorizontal: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  statNumber: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#007AFF',
+    marginBottom: 5,
+  },
+  statLabel: {
+    fontSize: 12,
+    color: '#666',
+  },
+  nextAppointmentSection: {
+    padding: 20,
+    paddingTop: 10,
+  },
+  nextAppointmentCard: {
+    backgroundColor: '#fff',
+    borderRadius: 15,
+    padding: 15,
+    flexDirection: 'row',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  appointmentDateBadge: {
+    width: 60,
+    height: 60,
+    backgroundColor: '#007AFF',
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 15,
+  },
+  appointmentDay: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#fff',
+  },
+  appointmentMonth: {
+    fontSize: 12,
+    color: '#fff',
+    textTransform: 'uppercase',
+  },
+  appointmentDetails: {
+    flex: 1,
+  },
+  appointmentDoctor: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 4,
+  },
+  appointmentTime: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 4,
+  },
+  appointmentReason: {
+    fontSize: 12,
+    color: '#999',
+  },
+  viewButton: {
+    backgroundColor: '#007AFF',
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    borderRadius: 20,
+  },
+  viewButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
+  },
   dashboardSection: {
     padding: 20,
   },
@@ -108,28 +207,37 @@ export default StyleSheet.create({
     color: '#666',
     textAlign: 'center',
   },
-  activitySection: {
+  tipsSection: {
     padding: 20,
   },
-  emptyState: {
+  tipCard: {
     backgroundColor: '#fff',
     borderRadius: 15,
-    padding: 40,
-    alignItems: 'center',
+    padding: 15,
+    flexDirection: 'row',
+    marginBottom: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
-  emptyStateIcon: {
-    fontSize: 50,
-    marginBottom: 15,
+  tipIcon: {
+    fontSize: 40,
+    marginRight: 15,
   },
-  emptyStateText: {
+  tipContent: {
+    flex: 1,
+  },
+  tipTitle: {
     fontSize: 16,
     fontWeight: '600',
     color: '#333',
     marginBottom: 5,
   },
-  emptyStateSubtext: {
+  tipText: {
     fontSize: 14,
     color: '#666',
-    textAlign: 'center',
+    lineHeight: 20,
   },
 });

@@ -5,17 +5,8 @@ import ProfileScreen from '../screens/ProfileScreen';
 import DoctorsScreen from '../screens/DoctorsScreen';
 import styles from '../styles/AppNavigatorStyles';
 import BookAppointmentScreen from '../screens/BookAppointmentScreen'; 
+import AppointmentsScreen from '../screens/AppointmentsScreen'; 
 
-// Temporary placeholder screen
-function AppointmentsScreen() {
-  return (
-    <View style={styles.placeholder}>
-      <Text style={styles.placeholderText}>📅</Text>
-      <Text style={styles.placeholderTitle}>Appointments</Text>
-      <Text style={styles.placeholderSubtitle}>Coming soon...</Text>
-    </View>
-  );
-}
 
 export default function AppNavigator({ user, onLogout }) {
   const [activeTab, setActiveTab] = React.useState('Home');
@@ -48,7 +39,7 @@ export default function AppNavigator({ user, onLogout }) {
         case 'BookAppointment':  
         return <BookAppointmentScreen navigation={navigation} doctor={bookingDoctor} user={user} />;
       case 'Appointments':
-        return <AppointmentsScreen />;
+        return <AppointmentsScreen user={user} />;
       case 'Profile':
         return <ProfileScreen navigation={navigation} user={user} />;
       default:

@@ -39,8 +39,18 @@ export default StyleSheet.create({
     borderColor: '#ddd',
     padding: 15,
     borderRadius: 8,
-    marginBottom: 15,
+    marginBottom: 5,
     fontSize: 16,
+  },
+  inputError: { // ← ADD THIS
+    borderColor: '#dc3545',
+    borderWidth: 2,
+  },
+  errorText: { // ← ADD THIS
+    color: '#dc3545',
+    fontSize: 12,
+    marginBottom: 10,
+    marginLeft: 5,
   },
   row: {
     flexDirection: 'row',
@@ -73,6 +83,9 @@ export default StyleSheet.create({
     padding: 15,
     borderRadius: 8,
     marginTop: 20,
+  },
+  buttonDisabled: { // ← ADD THIS
+    backgroundColor: '#ccc',
   },
   buttonText: {
     color: '#fff',
