@@ -109,6 +109,25 @@ export default StyleSheet.create({
     color: '#666',
     marginBottom: 4,
   },
+  consultationTypeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#E3F2FD',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 15,
+    alignSelf: 'flex-start',
+    marginBottom: 6,
+  },
+  consultationTypeIcon: {
+    fontSize: 14,
+    marginRight: 5,
+  },
+  consultationTypeText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#007AFF',
+  },
   appointmentReason: {
     fontSize: 12,
     color: '#999',

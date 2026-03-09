@@ -85,28 +85,57 @@ export default function AppointmentsScreen({ user }) {
   };
 
   const renderAppointment = ({ item }) => {
-    const isPast = new Date(item.appointment_date) < new Date();
-    const canCancel = item.status === 'pending' || item.status === 'confirmed';
+  const isPast = new Date(item.appointment_date) < new Date();
+  const canCancel = item.status === 'pending' || item.status === 'confirmed';
 
-    return (
-      <View style={styles.appointmentCard}>
-        <View style={styles.appointmentHeader}>
-          <View style={styles.dateContainer}>
-            <Text style={styles.dateDay}>
-              {new Date(item.appointment_date).getDate()}
+  // Get consultation mode icon and label
+  const getConsultationIcon = (type) => {
+    switch (type) {
+      case 'video': return '📹';
+      case 'audio': return '📞';
+      case 'chat': return '💬';
+      default: return '📹';
+    }
+  };
+
+  const getConsultationLabel = (type) => {
+    switch (type) {
+      case 'video': return 'Video';
+      case 'audio': return 'Audio';
+      case 'chat': return 'Chat';
+      default: return 'Video';
+    }
+  };
+
+  return (
+    <View style={styles.appointmentCard}>
+      <View style={styles.appointmentHeader}>
+        <View style={styles.dateContainer}>
+          <Text style={styles.dateDay}>
+            {new Date(item.appointment_date).getDate()}
+          </Text>
+          <Text style={styles.dateMonth}>
+            {new Date(item.appointment_date).toLocaleString('default', { month: 'short' })}
+          </Text>
+        </View>
+
+        <View style={styles.appointmentInfo}>
+          <Text style={styles.appointmentDoctor}>Dr. {item.doctor_name}</Text>
+          <Text style={styles.appointmentTime}>
+            🕐 {item.appointment_time}
+          </Text>
+          <View style={styles.consultationTypeContainer}>
+            <Text style={styles.consultationTypeIcon}>
+              {getConsultationIcon(item.appointment_type)}
             </Text>
-            <Text style={styles.dateMonth}>
-              {new Date(item.appointment_date).toLocaleString('default', { month: 'short' })}
+            <Text style={styles.consultationTypeText}>
+              {getConsultationLabel(item.appointment_type)}
             </Text>
           </View>
-
-          <View style={styles.appointmentInfo}>
-            <Text style={styles.doctorName}>Dr. {item.doctor_name || 'Unknown'}</Text>
-            <Text style={styles.appointmentTime}>🕐 {item.appointment_time}</Text>
-            <Text style={styles.appointmentReason} numberOfLines={1}>
-              {item.reason}
-            </Text>
-          </View>
+          <Text style={styles.appointmentReason} numberOfLines={1}>
+            {item.reason}
+          </Text>
+        </View>
 
           <View style={styles.statusContainer}>
             <Text style={styles.statusIcon}>{getStatusIcon(item.status)}</Text>
