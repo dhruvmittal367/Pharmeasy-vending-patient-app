@@ -84,18 +84,20 @@ export default function BookAppointmentScreen({ navigation, doctor, user }) {
         <Text style={styles.headerTitle}>Book Appointment</Text>
       </View>
 
-      <View style={styles.doctorCard}>
-        <View style={styles.doctorAvatar}>
-          <Text style={styles.doctorAvatarText}>
-            {doctor.first_name?.charAt(0)}{doctor.last_name?.charAt(0)}
-          </Text>
-        </View>
-        <View style={styles.doctorInfo}>
-          <Text style={styles.doctorName}>{doctor.fullName}</Text>
-          <Text style={styles.doctorSpecialty}>General Physician</Text>
-          <Text style={styles.doctorContact}>📧 {doctor.email}</Text>
-        </View>
-      </View>
+    <View style={styles.doctorCard}>
+    <View style={styles.doctorAvatar}>
+     <Text style={styles.doctorAvatarText}>
+      {doctor.first_name?.charAt(0)}{doctor.last_name?.charAt(0)}
+     </Text>
+   </View>
+   <View style={styles.doctorInfo}>
+    <Text style={styles.doctorName}>{doctor.fullName}</Text>
+    <Text style={styles.doctorSpecialty}>
+      {doctor.specialization || 'General Physician'}
+    </Text>
+    <Text style={styles.doctorContact}>📧 {doctor.email}</Text>
+   </View>
+</View>
 
       <View style={styles.formSection}>
         <Text style={styles.sectionTitle}>Select Date</Text>

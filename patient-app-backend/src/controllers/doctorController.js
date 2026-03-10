@@ -1,21 +1,39 @@
 const adminDb = require('../config/adminDb');
 
-// Get all doctors from admin_db
+// Get all doctors with their complete details from doctors table
 exports.getAllDoctors = async (req, res) => {
   try {
+    // JOIN users and doctors tables to get complete info
     const [doctors] = await adminDb.query(`
       SELECT 
-        id,
-        email,
-        first_name,
-        last_name,
-        mobile,
-        CONCAT(first_name, ' ', last_name) as fullName,
-        role,
-        active as isActive
-      FROM users 
-      WHERE role = 'DOCTOR' AND active = 1
-      ORDER BY first_name ASC
+        u.id,
+        u.email,
+        u.first_name,
+        u.last_name,
+        u.mobile,
+        CONCAT(u.first_name, ' ', u.last_name) as fullName,
+        u.role,
+        u.active as isActive,
+        d.user_id,
+        d.specialization,
+        d.qualification,
+        d.experience_years,
+        d.registration_number,
+        d.registration_council,
+        d.registration_year,
+        d.bio,
+        d.consultation_fee,
+        d.is_verified,
+        d.verification_status,
+        d.rating,
+        d.total_reviews,
+        d.total_consultations,
+        d.languages_spoken,
+        d.awards
+      FROM users u
+      LEFT JOIN doctors d ON u.id = d.user_id
+      WHERE u.role = 'DOCTOR' AND u.active = 1
+      ORDER BY u.first_name ASC
     `);
 
     res.status(200).json({
@@ -33,23 +51,40 @@ exports.getAllDoctors = async (req, res) => {
   }
 };
 
-// Get single doctor by ID
+// Get single doctor by ID with complete details
 exports.getDoctorById = async (req, res) => {
   try {
     const { id } = req.params;
 
     const [doctors] = await adminDb.query(`
       SELECT 
-        id,
-        email,
-        first_name,
-        last_name,
-        mobile,
-        CONCAT(first_name, ' ', last_name) as fullName,
-        role,
-        active as isActive
-      FROM users 
-      WHERE id = ? AND role = 'DOCTOR'
+        u.id,
+        u.email,
+        u.first_name,
+        u.last_name,
+        u.mobile,
+        CONCAT(u.first_name, ' ', u.last_name) as fullName,
+        u.role,
+        u.active as isActive,
+        d.user_id,
+        d.specialization,
+        d.qualification,
+        d.experience_years,
+        d.registration_number,
+        d.registration_council,
+        d.registration_year,
+        d.bio,
+        d.consultation_fee,
+        d.is_verified,
+        d.verification_status,
+        d.rating,
+        d.total_reviews,
+        d.total_consultations,
+        d.languages_spoken,
+        d.awards
+      FROM users u
+      LEFT JOIN doctors d ON u.id = d.user_id
+      WHERE u.id = ? AND u.role = 'DOCTOR'
     `, [id]);
 
     if (doctors.length === 0) {

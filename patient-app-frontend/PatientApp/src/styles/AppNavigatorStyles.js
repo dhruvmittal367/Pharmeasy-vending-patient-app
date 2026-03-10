@@ -3,7 +3,7 @@ import { StyleSheet } from 'react-native';
 export default StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#f5f5f5',
   },
   screenContainer: {
     flex: 1,
@@ -21,7 +21,7 @@ export default StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 3,
   },
-  tabButton: {
+  tabItem: {
     flex: 1,
     alignItems: 'center',
     paddingVertical: 8,
@@ -29,10 +29,6 @@ export default StyleSheet.create({
   tabIcon: {
     fontSize: 24,
     marginBottom: 4,
-    opacity: 0.5,
-  },
-  tabIconActive: {
-    opacity: 1,
   },
   tabLabel: {
     fontSize: 12,
@@ -41,25 +37,5 @@ export default StyleSheet.create({
   tabLabelActive: {
     color: '#007AFF',
     fontWeight: '600',
-  },
-  placeholder: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f5f5f5',
-  },
-  placeholderText: {
-    fontSize: 80,
-    marginBottom: 20,
-  },
-  placeholderTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 10,
-  },
-  placeholderSubtitle: {
-    fontSize: 16,
-    color: '#666',
   },
 });

@@ -50,7 +50,8 @@ export default function DoctorsScreen({ navigation }) {
   };
 
   const renderDoctor = ({ item }) => (
-    <TouchableOpacity style={styles.doctorCard}>
+  <View style={styles.doctorCard}>
+    <View style={styles.doctorHeader}>
       <View style={styles.doctorAvatar}>
         <Text style={styles.doctorAvatarText}>
           {item.first_name?.charAt(0)}{item.last_name?.charAt(0)}
@@ -59,19 +60,32 @@ export default function DoctorsScreen({ navigation }) {
       
       <View style={styles.doctorInfo}>
         <Text style={styles.doctorName}>{item.fullName}</Text>
-        <Text style={styles.doctorSpecialty}>General Physician</Text>
+        <Text style={styles.doctorSpecialty}>
+          {item.specialization || 'General Physician'}
+        </Text>
         <Text style={styles.doctorContact}>📧 {item.email}</Text>
         <Text style={styles.doctorContact}>📱 {item.mobile}</Text>
       </View>
+    </View>
+
+    {/* Buttons Row */}
+    <View style={styles.doctorActions}>
+      <TouchableOpacity 
+        style={styles.detailsButton}
+        onPress={() => navigation.navigate('DoctorDetail', { doctorId: item.id })}
+      >
+        <Text style={styles.detailsButtonText}>Show Details</Text>
+      </TouchableOpacity>
 
       <TouchableOpacity 
-      style={styles.bookButton}
-      onPress={() => navigation.navigate('BookAppointment', { doctor: item })}  // ← ADD THIS
-    >
-      <Text style={styles.bookButtonText}>Book</Text>
-    </TouchableOpacity>
-  </TouchableOpacity>
-  );
+        style={styles.bookButton}
+        onPress={() => navigation.navigate('BookAppointment', { doctor: item })}
+      >
+        <Text style={styles.bookButtonText}>Book</Text>
+      </TouchableOpacity>
+    </View>
+  </View>
+);
 
   if (loading) {
     return (
