@@ -56,27 +56,40 @@ export default function HomeScreen({ navigation, user }) {
       ]
     );
   };
+  
+// Calculate stats
+const today = new Date();
+today.setHours(0, 0, 0, 0); // Reset to start of day
 
-  // Calculate stats
-  const upcomingAppointments = appointments.filter(
-    apt => apt.status !== 'cancelled' && apt.status !== 'completed'
+const upcomingAppointments = appointments.filter(apt => {
+  const appointmentDate = new Date(apt.appointment_date);
+  appointmentDate.setHours(0, 0, 0, 0);
+  return (
+    appointmentDate >= today && 
+    apt.status !== 'cancelled' && 
+    apt.status !== 'completed'
   );
-  const todayAppointments = appointments.filter(apt => {
-    const today = new Date().toISOString().split('T')[0];
-    return apt.appointment_date.split('T')[0] === today;
-  });
+});
 
-  // Get next appointment
-  const nextAppointment = upcomingAppointments
-    .sort((a, b) => new Date(a.appointment_date) - new Date(b.appointment_date))[0];
+const todayAppointments = appointments.filter(apt => {
+  const appointmentDate = new Date(apt.appointment_date);
+  appointmentDate.setHours(0, 0, 0, 0);
+  return (
+    appointmentDate.getTime() === today.getTime() &&
+    apt.status !== 'cancelled' &&
+    apt.status !== 'completed'
+  );
+});
 
-  if (loading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#007AFF" />
-      </View>
-    );
-  }
+// Get next appointment (earliest upcoming)
+const nextAppointment = upcomingAppointments.length > 0
+  ? upcomingAppointments
+      .sort((a, b) => {
+        const dateA = new Date(a.appointment_date + ' ' + a.appointment_time);
+        const dateB = new Date(b.appointment_date + ' ' + b.appointment_time);
+        return dateA - dateB;
+      })[0]
+  : null;
 
   return (
     <ScrollView 

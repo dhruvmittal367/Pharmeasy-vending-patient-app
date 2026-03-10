@@ -42,27 +42,50 @@ export default function AppointmentsScreen({ user }) {
   };
 
   const handleCancelAppointment = (appointmentId) => {
-  Alert.alert(
-    'Cancel Appointment',
-    'Are you sure you want to cancel this appointment?',
-    [
-      { text: 'No', style: 'cancel' },
-      {
-        text: 'Yes',
-        style: 'destructive',
-        onPress: async () => {
-          try {
-            await axios.put(`${API_URL}/appointments/${appointmentId}/cancel`);
-            showSuccess('Appointment cancelled successfully');
-            fetchAppointments();
-          } catch (error) {
-            showError('Failed to cancel appointment');
+    Alert.alert(
+      'Cancel Appointment',
+      'Are you sure you want to cancel this appointment?',
+      [
+        { text: 'No', style: 'cancel' },
+        {
+          text: 'Yes',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await axios.put(`${API_URL}/appointments/${appointmentId}/cancel`);
+              showSuccess('Appointment cancelled successfully');
+              fetchAppointments();
+            } catch (error) {
+              showError('Failed to cancel appointment');
+            }
           }
         }
-      }
-    ]
-  );
-};
+      ]
+    );
+  };
+
+  // Filter appointments based on selected filter
+  const getFilteredAppointments = () => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Reset time to start of day
+
+    if (filter === 'all') {
+      return appointments;
+    } else if (filter === 'upcoming') {
+      return appointments.filter(item => {
+        const appointmentDate = new Date(item.appointment_date);
+        appointmentDate.setHours(0, 0, 0, 0);
+        return appointmentDate >= today && item.status !== 'cancelled' && item.status !== 'completed';
+      });
+    } else if (filter === 'past') {
+      return appointments.filter(item => {
+        const appointmentDate = new Date(item.appointment_date);
+        appointmentDate.setHours(0, 0, 0, 0);
+        return appointmentDate < today || item.status === 'completed' || item.status === 'cancelled';
+      });
+    }
+    return appointments;
+  };
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -84,11 +107,6 @@ export default function AppointmentsScreen({ user }) {
     }
   };
 
-  const renderAppointment = ({ item }) => {
-  const isPast = new Date(item.appointment_date) < new Date();
-  const canCancel = item.status === 'pending' || item.status === 'confirmed';
-
-  // Get consultation mode icon and label
   const getConsultationIcon = (type) => {
     switch (type) {
       case 'video': return '📹';
@@ -107,35 +125,39 @@ export default function AppointmentsScreen({ user }) {
     }
   };
 
-  return (
-    <View style={styles.appointmentCard}>
-      <View style={styles.appointmentHeader}>
-        <View style={styles.dateContainer}>
-          <Text style={styles.dateDay}>
-            {new Date(item.appointment_date).getDate()}
-          </Text>
-          <Text style={styles.dateMonth}>
-            {new Date(item.appointment_date).toLocaleString('default', { month: 'short' })}
-          </Text>
-        </View>
+  const renderAppointment = ({ item }) => {
+    const isPast = new Date(item.appointment_date) < new Date();
+    const canCancel = (item.status === 'pending' || item.status === 'confirmed') && !isPast;
 
-        <View style={styles.appointmentInfo}>
-          <Text style={styles.appointmentDoctor}>Dr. {item.doctor_name}</Text>
-          <Text style={styles.appointmentTime}>
-            🕐 {item.appointment_time}
-          </Text>
-          <View style={styles.consultationTypeContainer}>
-            <Text style={styles.consultationTypeIcon}>
-              {getConsultationIcon(item.appointment_type)}
+    return (
+      <View style={styles.appointmentCard}>
+        <View style={styles.appointmentHeader}>
+          <View style={styles.dateContainer}>
+            <Text style={styles.dateDay}>
+              {new Date(item.appointment_date).getDate()}
             </Text>
-            <Text style={styles.consultationTypeText}>
-              {getConsultationLabel(item.appointment_type)}
+            <Text style={styles.dateMonth}>
+              {new Date(item.appointment_date).toLocaleString('default', { month: 'short' })}
             </Text>
           </View>
-          <Text style={styles.appointmentReason} numberOfLines={1}>
-            {item.reason}
-          </Text>
-        </View>
+
+          <View style={styles.appointmentInfo}>
+            <Text style={styles.appointmentDoctor}>Dr. {item.doctor_name}</Text>
+            <Text style={styles.appointmentTime}>
+              🕐 {item.appointment_time}
+            </Text>
+            <View style={styles.consultationTypeContainer}>
+              <Text style={styles.consultationTypeIcon}>
+                {getConsultationIcon(item.appointment_type)}
+              </Text>
+              <Text style={styles.consultationTypeText}>
+                {getConsultationLabel(item.appointment_type)}
+              </Text>
+            </View>
+            <Text style={styles.appointmentReason} numberOfLines={1}>
+              {item.reason}
+            </Text>
+          </View>
 
           <View style={styles.statusContainer}>
             <Text style={styles.statusIcon}>{getStatusIcon(item.status)}</Text>
@@ -145,7 +167,7 @@ export default function AppointmentsScreen({ user }) {
           </View>
         </View>
 
-        {canCancel && !isPast && (
+        {canCancel && (
           <TouchableOpacity
             style={styles.cancelButton}
             onPress={() => handleCancelAppointment(item.id)}
@@ -166,12 +188,16 @@ export default function AppointmentsScreen({ user }) {
     );
   }
 
+  const filteredAppointments = getFilteredAppointments();
+
   return (
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>My Appointments</Text>
-        <Text style={styles.headerSubtitle}>{appointments.length} total</Text>
+        <Text style={styles.headerSubtitle}>
+          {filteredAppointments.length} {filter === 'all' ? 'total' : filter}
+        </Text>
       </View>
 
       {/* Filter Tabs */}
@@ -206,7 +232,7 @@ export default function AppointmentsScreen({ user }) {
 
       {/* Appointments List */}
       <FlatList
-        data={appointments}
+        data={filteredAppointments}
         renderItem={renderAppointment}
         keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={styles.listContainer}
@@ -216,8 +242,12 @@ export default function AppointmentsScreen({ user }) {
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
             <Text style={styles.emptyIcon}>📅</Text>
-            <Text style={styles.emptyText}>No appointments yet</Text>
-            <Text style={styles.emptySubtext}>Book your first appointment with a doctor</Text>
+            <Text style={styles.emptyText}>
+              {filter === 'all' ? 'No appointments yet' : `No ${filter} appointments`}
+            </Text>
+            <Text style={styles.emptySubtext}>
+              {filter === 'all' ? 'Book your first appointment with a doctor' : `You have no ${filter} appointments`}
+            </Text>
           </View>
         }
       />
