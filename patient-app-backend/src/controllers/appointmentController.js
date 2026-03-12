@@ -10,7 +10,9 @@ exports.createAppointment = async (req, res) => {
       appointment_date, 
       appointment_time, 
       appointment_type,
-      reason 
+      reason,
+      status,
+      payment_status
     } = req.body;
 
     // Validation
@@ -21,17 +23,26 @@ exports.createAppointment = async (req, res) => {
       });
     }
 
-    // Insert appointment with appointment_type
+    // Insert appointment
     const [result] = await db.query(
       `INSERT INTO appointments 
-       (patient_id, doctor_id, appointment_date, appointment_time, appointment_type, reason, status) 
-       VALUES (?, ?, ?, ?, ?, ?, 'pending')`,
-      [patient_id, doctor_id, appointment_date, appointment_time, appointment_type || 'video', reason]
+       (patient_id, doctor_id, appointment_date, appointment_time, appointment_type, reason, status, payment_status) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        patient_id, 
+        doctor_id, 
+        appointment_date, 
+        appointment_time, 
+        appointment_type || 'video', 
+        reason,
+        status || 'pending',
+        payment_status || 'pending'
+      ]
     );
 
     res.status(201).json({
       success: true,
-      message: 'Appointment booked successfully',
+      message: 'Appointment created successfully',
       appointmentId: result.insertId
     });
 
@@ -39,7 +50,7 @@ exports.createAppointment = async (req, res) => {
     console.error('Create appointment error:', error);
     res.status(500).json({
       success: false,
-      error: 'Failed to book appointment'
+      error: 'Failed to create appointment'
     });
   }
 };
@@ -49,7 +60,6 @@ exports.getPatientAppointments = async (req, res) => {
   try {
     const { patientId } = req.params;
 
-    // Get appointments from patient_app database
     const [appointments] = await db.query(
       `SELECT * FROM appointments 
        WHERE patient_id = ?
@@ -57,7 +67,6 @@ exports.getPatientAppointments = async (req, res) => {
       [patientId]
     );
 
-    // Get doctor details from admin_db for each appointment
     for (let appointment of appointments) {
       try {
         const [doctors] = await adminDb.query(
@@ -117,6 +126,27 @@ exports.cancelAppointment = async (req, res) => {
     res.status(500).json({
       success: false,
       error: 'Failed to cancel appointment'
+    });
+  }
+};
+
+// Delete appointment
+exports.deleteAppointment = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    await db.query('DELETE FROM appointments WHERE id = ?', [id]);
+
+    res.status(200).json({
+      success: true,
+      message: 'Appointment deleted successfully'
+    });
+
+  } catch (error) {
+    console.error('Delete appointment error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to delete appointment'
     });
   }
 };

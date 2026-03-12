@@ -57,9 +57,9 @@ export default function HomeScreen({ navigation, user }) {
     );
   };
   
-// Calculate stats
+
 const today = new Date();
-today.setHours(0, 0, 0, 0); // Reset to start of day
+today.setHours(0, 0, 0, 0); 
 
 const upcomingAppointments = appointments.filter(apt => {
   const appointmentDate = new Date(apt.appointment_date);

@@ -4,6 +4,7 @@ import HomeScreen from '../screens/HomeScreen';
 import DoctorsScreen from '../screens/DoctorsScreen';
 import DoctorDetailScreen from '../screens/DoctorDetailScreen';
 import BookAppointmentScreen from '../screens/BookAppointmentScreen';
+import PaymentScreen from '../screens/PaymentScreen'; // ← ADD THIS
 import AppointmentsScreen from '../screens/AppointmentsScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import styles from '../styles/AppNavigatorStyles';
@@ -12,6 +13,7 @@ export default function AppNavigator({ user, onLogout }) {
   const [activeTab, setActiveTab] = React.useState('Home');
   const [bookingDoctor, setBookingDoctor] = React.useState(null);
   const [selectedDoctorId, setSelectedDoctorId] = React.useState(null);
+  const [paymentData, setPaymentData] = React.useState(null); // ← ADD THIS
 
   const renderScreen = () => {
     const navigation = {
@@ -22,6 +24,9 @@ export default function AppNavigator({ user, onLogout }) {
         } else if (screen === 'DoctorDetail') {
           setSelectedDoctorId(params.doctorId);
           setActiveTab('DoctorDetail');
+        } else if (screen === 'Payment') { // ← ADD THIS
+          setPaymentData(params);
+          setActiveTab('Payment');
         } else {
           setActiveTab(screen);
         }
@@ -44,6 +49,15 @@ export default function AppNavigator({ user, onLogout }) {
         return <DoctorDetailScreen navigation={navigation} doctorId={selectedDoctorId} />;
       case 'BookAppointment':
         return <BookAppointmentScreen navigation={navigation} doctor={bookingDoctor} user={user} />;
+      case 'Payment': // ← ADD THIS
+        return (
+          <PaymentScreen 
+            navigation={navigation} 
+            appointmentData={paymentData?.appointmentData}
+            doctor={paymentData?.doctor}
+            user={user}
+          />
+        );
       case 'Appointments':
         return <AppointmentsScreen user={user} />;
       case 'Profile':
@@ -53,17 +67,15 @@ export default function AppNavigator({ user, onLogout }) {
     }
   };
 
-  // Hide bottom tabs for BookAppointment and DoctorDetail screens
-  const showBottomTabs = activeTab !== 'BookAppointment' && activeTab !== 'DoctorDetail';
+  // Hide bottom tabs for BookAppointment, DoctorDetail, and Payment screens
+  const showBottomTabs = activeTab !== 'BookAppointment' && activeTab !== 'DoctorDetail' && activeTab !== 'Payment';
 
   return (
     <View style={styles.container}>
-      {/* Screen Content */}
       <View style={styles.screenContainer}>
         {renderScreen()}
       </View>
 
-      {/* Bottom Tab Bar */}
       {showBottomTabs && (
         <View style={styles.tabBar}>
           <TouchableOpacity

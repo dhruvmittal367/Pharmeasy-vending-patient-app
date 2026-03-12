@@ -8,17 +8,13 @@ import {
 } from 'react-native';
 import { showSuccess, showError } from '../utils/toast';
 import { Calendar } from 'react-native-calendars';
-import axios from 'axios';
 import styles from '../styles/BookAppointmentStyles';
-
-const API_URL = 'http://10.0.2.2:8080/api';
 
 export default function BookAppointmentScreen({ navigation, doctor, user }) {
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
   const [consultationMode, setConsultationMode] = useState('video');
   const [reason, setReason] = useState('');
-  const [loading, setLoading] = useState(false);
 
   const today = new Date().toISOString().split('T')[0];
   const maxDate = new Date();
@@ -29,38 +25,23 @@ export default function BookAppointmentScreen({ navigation, doctor, user }) {
   const afternoonSlots = ['14:00', '14:30', '15:00', '15:30', '16:00', '16:30'];
   const eveningSlots = ['17:00', '17:30', '18:00', '18:30'];
 
-  const handleBookAppointment = async () => {
+  const handleProceedToPayment = () => {
     if (!selectedDate || !selectedTime || !reason.trim()) {
       showError('Please select date, time and enter reason');
       return;
     }
 
-    setLoading(true);
-    try {
-      const appointmentData = {
-        patient_id: user.id,
-        doctor_id: doctor.id,
+    // DON'T create appointment - just navigate to payment with data
+    navigation.navigate('Payment', {
+      appointmentData: {
         appointment_date: selectedDate,
         appointment_time: selectedTime,
         appointment_type: consultationMode,
         reason: reason.trim(),
-        status: 'pending'
-      };
-
-      await axios.post(`${API_URL}/appointments`, appointmentData);
-
-      showSuccess('Appointment booked successfully!');
-      
-      setTimeout(() => {
-        navigation.navigate('Appointments');
-      }, 1000);
-
-    } catch (error) {
-      console.error('Booking error:', error);
-      showError(error.response?.data?.error || 'Failed to book appointment');
-    } finally {
-      setLoading(false);
-    }
+      },
+      doctor: doctor,
+      user: user,
+    });
   };
 
   const renderTimeSlot = (time) => (
@@ -84,20 +65,20 @@ export default function BookAppointmentScreen({ navigation, doctor, user }) {
         <Text style={styles.headerTitle}>Book Appointment</Text>
       </View>
 
-    <View style={styles.doctorCard}>
-    <View style={styles.doctorAvatar}>
-     <Text style={styles.doctorAvatarText}>
-      {doctor.first_name?.charAt(0)}{doctor.last_name?.charAt(0)}
-     </Text>
-   </View>
-   <View style={styles.doctorInfo}>
-    <Text style={styles.doctorName}>{doctor.fullName}</Text>
-    <Text style={styles.doctorSpecialty}>
-      {doctor.specialization || 'General Physician'}
-    </Text>
-    <Text style={styles.doctorContact}>📧 {doctor.email}</Text>
-   </View>
-</View>
+      <View style={styles.doctorCard}>
+        <View style={styles.doctorAvatar}>
+          <Text style={styles.doctorAvatarText}>
+            {doctor.first_name?.charAt(0)}{doctor.last_name?.charAt(0)}
+          </Text>
+        </View>
+        <View style={styles.doctorInfo}>
+          <Text style={styles.doctorName}>{doctor.fullName}</Text>
+          <Text style={styles.doctorSpecialty}>
+            {doctor.specialization || 'General Physician'}
+          </Text>
+          <Text style={styles.doctorContact}>📧 {doctor.email}</Text>
+        </View>
+      </View>
 
       <View style={styles.formSection}>
         <Text style={styles.sectionTitle}>Select Date</Text>
@@ -208,12 +189,9 @@ export default function BookAppointmentScreen({ navigation, doctor, user }) {
 
             <TouchableOpacity
               style={styles.bookButton}
-              onPress={handleBookAppointment}
-              disabled={loading}
+              onPress={handleProceedToPayment}
             >
-              <Text style={styles.bookButtonText}>
-                {loading ? 'Booking...' : 'Confirm Appointment'}
-              </Text>
+              <Text style={styles.bookButtonText}>Proceed to Payment</Text>
             </TouchableOpacity>
           </>
         )}
