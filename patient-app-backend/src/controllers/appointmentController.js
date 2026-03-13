@@ -131,10 +131,15 @@ exports.cancelAppointment = async (req, res) => {
 };
 
 // Delete appointment
+// Delete appointment
 exports.deleteAppointment = async (req, res) => {
   try {
     const { id } = req.params;
 
+    // Delete related payment orders first (if CASCADE not set)
+    await db.query('DELETE FROM payment_orders WHERE appointment_id = ?', [id]);
+
+    // Delete the appointment
     await db.query('DELETE FROM appointments WHERE id = ?', [id]);
 
     res.status(200).json({
