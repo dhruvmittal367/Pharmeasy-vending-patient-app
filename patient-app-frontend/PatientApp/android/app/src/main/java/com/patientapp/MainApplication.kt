@@ -19,7 +19,6 @@ class MainApplication : Application(), ReactApplication {
               RazorpayPackage()
           )
         }
-
         override fun getJSMainModuleName(): String = "index"
 
         override fun getUseDeveloperSupport(): Boolean = true
