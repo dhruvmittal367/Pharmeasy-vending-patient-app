@@ -1,7 +1,33 @@
 const db = require('../config/db');
 const adminDb = require('../config/adminDb');
 
+// ─────────────────────────────────────────
+// ⚡ Socket.io setup
+// ─────────────────────────────────────────
+let io;
+exports.setIo = (socketIo) => {
+  io = socketIo;
+};
+
+// Helper: Doctor ke appointments fetch karo
+const getDoctorAppointments = async (doctorId) => {
+  const [rows] = await db.query(
+    `SELECT * FROM appointments WHERE doctor_id = ? ORDER BY appointment_date ASC`,
+    [doctorId]
+  );
+  return rows;
+};
+
+// Helper: Doctor ko real-time update bhejo
+const emitToDoctor = async (doctorId) => {
+  if (!io || !doctorId) return;
+  const appointments = await getDoctorAppointments(doctorId);
+  io.to(`doctor_${doctorId}`).emit("appointments_update", appointments);
+};
+
+// ─────────────────────────────────────────
 // Create new appointment
+// ─────────────────────────────────────────
 exports.createAppointment = async (req, res) => {
   try {
     const { 
@@ -15,7 +41,6 @@ exports.createAppointment = async (req, res) => {
       payment_status
     } = req.body;
 
-    // Validation
     if (!patient_id || !doctor_id || !appointment_date || !appointment_time || !reason) {
       return res.status(400).json({
         success: false,
@@ -23,7 +48,6 @@ exports.createAppointment = async (req, res) => {
       });
     }
 
-    // Insert appointment
     const [result] = await db.query(
       `INSERT INTO appointments 
        (patient_id, doctor_id, appointment_date, appointment_time, appointment_type, reason, status, payment_status) 
@@ -40,6 +64,9 @@ exports.createAppointment = async (req, res) => {
       ]
     );
 
+    // ⚡ Real-time update
+    await emitToDoctor(doctor_id);
+
     res.status(201).json({
       success: true,
       message: 'Appointment created successfully',
@@ -55,7 +82,9 @@ exports.createAppointment = async (req, res) => {
   }
 };
 
+// ─────────────────────────────────────────
 // Get all appointments for a patient
+// ─────────────────────────────────────────
 exports.getPatientAppointments = async (req, res) => {
   try {
     const { patientId } = req.params;
@@ -106,15 +135,26 @@ exports.getPatientAppointments = async (req, res) => {
   }
 };
 
+// ─────────────────────────────────────────
 // Cancel appointment
+// ─────────────────────────────────────────
 exports.cancelAppointment = async (req, res) => {
   try {
     const { id } = req.params;
+
+    // Pehle doctor_id nikalo
+    const [rows] = await db.query(
+      'SELECT doctor_id FROM appointments WHERE id = ?', [id]
+    );
+    const doctor_id = rows[0]?.doctor_id;
 
     await db.query(
       'UPDATE appointments SET status = ?, cancelled_at = NOW(), cancelled_by = ? WHERE id = ?',
       ['cancelled', 'patient', id]
     );
+
+    // ⚡ Real-time update
+    await emitToDoctor(doctor_id);
 
     res.status(200).json({
       success: true,
@@ -130,17 +170,24 @@ exports.cancelAppointment = async (req, res) => {
   }
 };
 
+// ─────────────────────────────────────────
 // Delete appointment
-// Delete appointment
+// ─────────────────────────────────────────
 exports.deleteAppointment = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Delete related payment orders first (if CASCADE not set)
-    await db.query('DELETE FROM payment_orders WHERE appointment_id = ?', [id]);
+    // Pehle doctor_id nikalo
+    const [rows] = await db.query(
+      'SELECT doctor_id FROM appointments WHERE id = ?', [id]
+    );
+    const doctor_id = rows[0]?.doctor_id;
 
-    // Delete the appointment
+    await db.query('DELETE FROM payment_orders WHERE appointment_id = ?', [id]);
     await db.query('DELETE FROM appointments WHERE id = ?', [id]);
+
+    // ⚡ Real-time update
+    await emitToDoctor(doctor_id);
 
     res.status(200).json({
       success: true,
