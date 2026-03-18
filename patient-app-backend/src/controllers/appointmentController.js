@@ -12,11 +12,21 @@ exports.setIo = (socketIo) => {
 // Helper: Doctor ke appointments fetch karo
 const getDoctorAppointments = async (doctorId) => {
   const [rows] = await db.query(
-    `SELECT * FROM appointments WHERE doctor_id = ? ORDER BY appointment_date ASC`,
+    `SELECT 
+      a.*,
+      u.full_name AS patient_name,
+      u.email AS patient_email,
+      u.phone AS patient_phone
+     FROM appointments a
+     LEFT JOIN users u ON a.patient_id = u.id
+     WHERE a.doctor_id = ?
+     ORDER BY a.appointment_date ASC`,
     [doctorId]
   );
+  console.log("🔍 Sample row:", rows[0]);
   return rows;
 };
+
 
 // Helper: Doctor ko real-time update bhejo
 const emitToDoctor = async (doctorId) => {
@@ -202,3 +212,4 @@ exports.deleteAppointment = async (req, res) => {
     });
   }
 };
+exports.getDoctorAppointments = getDoctorAppointments;

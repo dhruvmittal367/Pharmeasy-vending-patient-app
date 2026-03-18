@@ -62,16 +62,9 @@ io.on("connection", (socket) => {
   // Doctor apne room mein join kare
   socket.on("join_doctor_room", async (doctorId) => {
     socket.join(`doctor_${doctorId}`);
-    console.log(`👨‍⚕️ Doctor ${doctorId} joined their room`);
-
-    // Turant us doctor ki appointments bhejo
     try {
-      const [appointments] = await db.query(
-        `SELECT * FROM appointments 
-         WHERE doctor_id = ? 
-         ORDER BY appointment_date ASC`,
-        [doctorId]
-      );
+      // ✅ getDoctorAppointments use karo — patient name bhi aayega
+      const appointments = await appointmentController.getDoctorAppointments(doctorId);
       socket.emit("appointments_update", appointments);
     } catch (err) {
       console.error("Error fetching appointments for doctor:", err);
