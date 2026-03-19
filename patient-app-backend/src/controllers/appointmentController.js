@@ -146,6 +146,51 @@ exports.getPatientAppointments = async (req, res) => {
 };
 
 // ─────────────────────────────────────────
+// Get booked slots for a doctor on specific date
+// ─────────────────────────────────────────
+exports.getBookedSlots = async (req, res) => {
+  try {
+    const { doctorId, date } = req.query;
+
+    console.log('🔍 Query params:', { doctorId, date });
+
+    if (!doctorId || !date) {
+      return res.status(400).json({
+        success: false,
+        error: 'Doctor ID and date are required'
+      });
+    }
+
+    // Use DATE() to compare only the date part
+    const [appointments] = await db.query(
+      `SELECT 
+        TIME_FORMAT(appointment_time, '%H:%i') as appointment_time
+       FROM appointments 
+       WHERE doctor_id = ? 
+       AND DATE(appointment_date) = ? 
+       AND status NOT IN ('cancelled')`,
+      [doctorId, date]
+    );
+
+    const bookedSlots = appointments.map(apt => apt.appointment_time);
+
+    console.log('✅ Booked slots for doctor', doctorId, 'on', date, ':', bookedSlots);
+
+    res.status(200).json({
+      success: true,
+      bookedSlots
+    });
+
+  } catch (error) {
+    console.error('Get booked slots error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch booked slots'
+    });
+  }
+};
+
+// ─────────────────────────────────────────
 // Cancel appointment
 // ─────────────────────────────────────────
 exports.cancelAppointment = async (req, res) => {
@@ -212,4 +257,5 @@ exports.deleteAppointment = async (req, res) => {
     });
   }
 };
+
 exports.getDoctorAppointments = getDoctorAppointments;

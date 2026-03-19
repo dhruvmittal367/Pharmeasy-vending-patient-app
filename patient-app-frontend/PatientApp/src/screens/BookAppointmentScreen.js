@@ -1,20 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
   TextInput,
   TouchableOpacity,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 import { showSuccess, showError } from '../utils/toast';
 import { Calendar } from 'react-native-calendars';
+import axios from 'axios';
 import styles from '../styles/BookAppointmentStyles';
+
+const API_URL = 'http://10.0.2.2:8080/api';
 
 export default function BookAppointmentScreen({ navigation, doctor, user }) {
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
   const [consultationMode, setConsultationMode] = useState('video');
   const [reason, setReason] = useState('');
+  const [bookedSlots, setBookedSlots] = useState([]);
+  const [loadingSlots, setLoadingSlots] = useState(false);
 
   const today = new Date().toISOString().split('T')[0];
   const maxDate = new Date();
@@ -25,13 +31,45 @@ export default function BookAppointmentScreen({ navigation, doctor, user }) {
   const afternoonSlots = ['14:00', '14:30', '15:00', '15:30', '16:00', '16:30'];
   const eveningSlots = ['17:00', '17:30', '18:00', '18:30'];
 
+  // Fetch booked slots when date is selected
+  useEffect(() => {
+    if (selectedDate && doctor.id) {
+      fetchBookedSlots();
+    }
+  }, [selectedDate, doctor.id]);
+
+  const fetchBookedSlots = async () => {
+    setLoadingSlots(true);
+    try {
+      const response = await axios.get(`${API_URL}/appointments/booked-slots`, {
+        params: {
+          doctorId: doctor.id,
+          date: selectedDate
+        }
+      });
+
+      setBookedSlots(response.data.bookedSlots || []);
+    } catch (error) {
+      console.error('Fetch booked slots error:', error);
+      // Don't show error to user, just set empty array
+      setBookedSlots([]);
+    } finally {
+      setLoadingSlots(false);
+    }
+  };
+
   const handleProceedToPayment = () => {
     if (!selectedDate || !selectedTime || !reason.trim()) {
       showError('Please select date, time and enter reason');
       return;
     }
 
-    // DON'T create appointment - just navigate to payment with data
+    // Check if slot is booked (extra validation)
+    if (bookedSlots.includes(selectedTime)) {
+      showError('This slot is already booked. Please select another time.');
+      return;
+    }
+
     navigation.navigate('Payment', {
       appointmentData: {
         appointment_date: selectedDate,
@@ -44,17 +82,37 @@ export default function BookAppointmentScreen({ navigation, doctor, user }) {
     });
   };
 
-  const renderTimeSlot = (time) => (
-    <TouchableOpacity
-      key={time}
-      style={[styles.timeSlot, selectedTime === time && styles.timeSlotActive]}
-      onPress={() => setSelectedTime(time)}
-    >
-      <Text style={[styles.timeSlotText, selectedTime === time && styles.timeSlotTextActive]}>
-        {time}
-      </Text>
-    </TouchableOpacity>
-  );
+  const isSlotBooked = (time) => {
+    return bookedSlots.includes(time);
+  };
+
+  const renderTimeSlot = (time) => {
+    const booked = isSlotBooked(time);
+    
+    return (
+      <TouchableOpacity
+        key={time}
+        style={[
+          styles.timeSlot,
+          selectedTime === time && styles.timeSlotActive,
+          booked && styles.timeSlotBooked
+        ]}
+        onPress={() => !booked && setSelectedTime(time)}
+        disabled={booked}
+      >
+        <Text style={[
+          styles.timeSlotText,
+          selectedTime === time && styles.timeSlotTextActive,
+          booked && styles.timeSlotTextBooked
+        ]}>
+          {time}
+        </Text>
+        {booked && (
+          <Text style={styles.bookedBadge}>Booked</Text>
+        )}
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <ScrollView style={styles.container}>
@@ -86,7 +144,10 @@ export default function BookAppointmentScreen({ navigation, doctor, user }) {
           <Calendar
             minDate={today}
             maxDate={maxDateStr}
-            onDayPress={(day) => setSelectedDate(day.dateString)}
+            onDayPress={(day) => {
+              setSelectedDate(day.dateString);
+              setSelectedTime(''); // Reset selected time when date changes
+            }}
             markedDates={{
               [selectedDate]: {
                 selected: true,
@@ -156,22 +217,31 @@ export default function BookAppointmentScreen({ navigation, doctor, user }) {
               </TouchableOpacity>
             </View>
 
-            <Text style={styles.sectionTitle}>Select Time Slot</Text>
-            
-            <Text style={styles.slotGroupTitle}>Morning</Text>
-            <View style={styles.timeSlotsContainer}>
-              {morningSlots.map(renderTimeSlot)}
-            </View>
+            {loadingSlots ? (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator size="small" color="#007AFF" />
+                <Text style={styles.loadingText}>Loading available slots...</Text>
+              </View>
+            ) : (
+              <>
+                <Text style={styles.sectionTitle}>Select Time Slot</Text>
+                
+                <Text style={styles.slotGroupTitle}>Morning</Text>
+                <View style={styles.timeSlotsContainer}>
+                  {morningSlots.map(renderTimeSlot)}
+                </View>
 
-            <Text style={styles.slotGroupTitle}>Afternoon</Text>
-            <View style={styles.timeSlotsContainer}>
-              {afternoonSlots.map(renderTimeSlot)}
-            </View>
+                <Text style={styles.slotGroupTitle}>Afternoon</Text>
+                <View style={styles.timeSlotsContainer}>
+                  {afternoonSlots.map(renderTimeSlot)}
+                </View>
 
-            <Text style={styles.slotGroupTitle}>Evening</Text>
-            <View style={styles.timeSlotsContainer}>
-              {eveningSlots.map(renderTimeSlot)}
-            </View>
+                <Text style={styles.slotGroupTitle}>Evening</Text>
+                <View style={styles.timeSlotsContainer}>
+                  {eveningSlots.map(renderTimeSlot)}
+                </View>
+              </>
+            )}
           </>
         )}
 

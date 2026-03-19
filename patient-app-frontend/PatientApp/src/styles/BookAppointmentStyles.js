@@ -229,4 +229,32 @@ export default StyleSheet.create({
     textAlign: 'center',
     lineHeight: 20,
   },
+
+
+  timeSlotBooked: {
+    backgroundColor: '#f0f0f0',
+    borderColor: '#d0d0d0',
+    opacity: 0.6,
+  },
+  timeSlotTextBooked: {
+    color: '#999',
+    textDecorationLine: 'line-through',
+  },
+  bookedBadge: {
+    fontSize: 10,
+    color: '#ff3b30',
+    marginTop: 2,
+    fontWeight: '600',
+  },
+  loadingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  loadingText: {
+    marginLeft: 10,
+    fontSize: 14,
+    color: '#666',
+  },
 });
