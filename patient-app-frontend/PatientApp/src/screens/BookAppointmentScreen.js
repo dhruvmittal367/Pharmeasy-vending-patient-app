@@ -31,6 +31,29 @@ export default function BookAppointmentScreen({ navigation, doctor, user }) {
   const afternoonSlots = ['14:00', '14:30', '15:00', '15:30', '16:00', '16:30'];
   const eveningSlots = ['17:00', '17:30', '18:00', '18:30'];
 
+  // Check if slot time has passed (only for today)
+  const isSlotInPast = (time) => {
+    if (selectedDate !== today) {
+      return false; // Future dates - all slots available
+    }
+
+    const now = new Date();
+    const currentHour = now.getHours();
+    const currentMinute = now.getMinutes();
+
+    const [slotHour, slotMinute] = time.split(':').map(Number);
+
+    if (slotHour < currentHour) {
+      return true;
+    }
+    
+    if (slotHour === currentHour && slotMinute <= currentMinute) {
+      return true;
+    }
+
+    return false;
+  };
+
   // Fetch booked slots when date is selected
   useEffect(() => {
     if (selectedDate && doctor.id) {
@@ -51,7 +74,6 @@ export default function BookAppointmentScreen({ navigation, doctor, user }) {
       setBookedSlots(response.data.bookedSlots || []);
     } catch (error) {
       console.error('Fetch booked slots error:', error);
-      // Don't show error to user, just set empty array
       setBookedSlots([]);
     } finally {
       setLoadingSlots(false);
@@ -64,7 +86,19 @@ export default function BookAppointmentScreen({ navigation, doctor, user }) {
       return;
     }
 
-    // Check if slot is booked (extra validation)
+    // Check if date is in past
+    if (selectedDate < today) {
+      showError('Cannot book appointment for past dates');
+      return;
+    }
+
+    // Check if slot is in past (for today)
+    if (selectedDate === today && isSlotInPast(selectedTime)) {
+      showError('Cannot book past time slots');
+      return;
+    }
+
+    // Check if slot is booked
     if (bookedSlots.includes(selectedTime)) {
       showError('This slot is already booked. Please select another time.');
       return;
@@ -88,6 +122,8 @@ export default function BookAppointmentScreen({ navigation, doctor, user }) {
 
   const renderTimeSlot = (time) => {
     const booked = isSlotBooked(time);
+    const isPast = isSlotInPast(time);
+    const disabled = booked || isPast;
     
     return (
       <TouchableOpacity
@@ -95,20 +131,25 @@ export default function BookAppointmentScreen({ navigation, doctor, user }) {
         style={[
           styles.timeSlot,
           selectedTime === time && styles.timeSlotActive,
-          booked && styles.timeSlotBooked
+          booked && styles.timeSlotBooked,
+          isPast && styles.timeSlotPast
         ]}
-        onPress={() => !booked && setSelectedTime(time)}
-        disabled={booked}
+        onPress={() => !disabled && setSelectedTime(time)}
+        disabled={disabled}
       >
         <Text style={[
           styles.timeSlotText,
           selectedTime === time && styles.timeSlotTextActive,
-          booked && styles.timeSlotTextBooked
+          booked && styles.timeSlotTextBooked,
+          isPast && styles.timeSlotTextPast
         ]}>
           {time}
         </Text>
         {booked && (
           <Text style={styles.bookedBadge}>Booked</Text>
+        )}
+        {isPast && !booked && (
+          <Text style={styles.pastBadge}>Past</Text>
         )}
       </TouchableOpacity>
     );
@@ -146,7 +187,7 @@ export default function BookAppointmentScreen({ navigation, doctor, user }) {
             maxDate={maxDateStr}
             onDayPress={(day) => {
               setSelectedDate(day.dateString);
-              setSelectedTime(''); // Reset selected time when date changes
+              setSelectedTime('');
             }}
             markedDates={{
               [selectedDate]: {

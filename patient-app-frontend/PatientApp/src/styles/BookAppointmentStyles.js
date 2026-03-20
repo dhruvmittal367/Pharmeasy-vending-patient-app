@@ -257,4 +257,20 @@ export default StyleSheet.create({
     fontSize: 14,
     color: '#666',
   },
+
+  timeSlotPast: {
+  backgroundColor: '#fafafa',
+  borderColor: '#e0e0e0',
+  opacity: 0.5,
+},
+timeSlotTextPast: {
+  color: '#bbb',
+  textDecorationLine: 'line-through',
+},
+pastBadge: {
+  fontSize: 10,
+  color: '#999',
+  marginTop: 2,
+  fontWeight: '600',
+},
 });
